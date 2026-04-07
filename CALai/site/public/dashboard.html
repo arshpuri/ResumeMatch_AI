@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#727783",
+                    "surface-container-highest": "#e3e2df",
+                    "surface-container": "#efeeeb",
+                    "inverse-primary": "#a8c8ff",
+                    "on-primary-container": "#dbe6ff",
+                    "tertiary-fixed-dim": "#ffb68e",
+                    "background": "#faf9f6",
+                    "primary-fixed-dim": "#a8c8ff",
+                    "surface-container-low": "#f4f3f0",
+                    "on-surface": "#1b1c1a",
+                    "secondary-fixed": "#d6e3ff",
+                    "on-primary": "#ffffff",
+                    "surface-bright": "#faf9f6",
+                    "inverse-on-surface": "#f2f1ee",
+                    "tertiary-fixed": "#ffdbca",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed-dim": "#b1c7f1",
+                    "surface-container-high": "#e9e8e5",
+                    "secondary": "#495f83",
+                    "primary": "#004e99",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#465c80",
+                    "tertiary-container": "#a94b00",
+                    "on-tertiary-fixed": "#331200",
+                    "on-error": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-surface-variant": "#414752",
+                    "on-tertiary-fixed-variant": "#773300",
+                    "on-primary-fixed-variant": "#00468a",
+                    "inverse-surface": "#2f312f",
+                    "surface-tint": "#005db5",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed-variant": "#31476a",
+                    "on-primary-fixed": "#001b3d",
+                    "on-background": "#1b1c1a",
+                    "surface-variant": "#e3e2df",
+                    "primary-fixed": "#d6e3ff",
+                    "on-secondary-fixed": "#001b3c",
+                    "outline-variant": "#c1c6d4",
+                    "secondary-container": "#bfd5ff",
+                    "tertiary": "#833900",
+                    "on-tertiary-container": "#ffe0d1",
+                    "surface-dim": "#dbdad7",
+                    "primary-container": "#0b66c2",
+                    "surface": "#faf9f6",
+                    "error-container": "#ffdad6",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .chart-line {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 0;
+        }
+    </style>
+</head>
+<body class="bg-[#F3F2EF] text-on-surface antialiased min-h-screen">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-sm font-sans antialiased tracking-tight">
+<div class="flex justify-between items-center px-6 py-3 max-w-7xl mx-auto">
+<!-- Brand Logo -->
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-blue-700">ResumeMatch AI</span>
+<!-- Search Bar -->
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
+<input class="bg-surface-container-high border-none rounded-lg pl-10 pr-4 py-2 w-64 text-sm focus:ring-2 focus:ring-primary/40 transition-all outline-none" placeholder="Search analytics..." type="text"/>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="hidden md:flex items-center gap-6">
+<a class="text-blue-700 font-semibold border-b-2 border-blue-700 pb-1" href="#">Dashboard</a>
+<a class="text-slate-500 font-medium hover:text-blue-600 transition-colors duration-200" href="#">Analytics</a>
+<a class="text-slate-500 font-medium hover:text-blue-600 transition-colors duration-200" href="#">Matches</a>
+<a class="text-slate-500 font-medium hover:text-blue-600 transition-colors duration-200" href="#">Talent</a>
+<a class="text-slate-500 font-medium hover:text-blue-600 transition-colors duration-200" href="#">Reports</a>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<button class="bg-gradient-to-br from-primary to-primary-container text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 active:opacity-80 transition-all">
+                    Upload Resume
+                </button>
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined p-2 hover:bg-slate-50 rounded-full cursor-pointer transition-colors">notifications</span>
+<span class="material-symbols-outlined p-2 hover:bg-slate-50 rounded-full cursor-pointer transition-colors">settings</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a professional male executive in a studio with clean neutral lighting and a confident expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCn5yoAZ4gxYqV0JZbYKCUtPU_r5ddiBExBMlpzd0DqVrplA8nSt13EqmiqOXhFty631tLniY4rtRDj967KSXSpM0op_moYWRurzX11d7TpCMWTtXNhYm_PkSEP_qC3t9BAKI_WhIB04C8yXT7iDWOQIURW97H6DEHclD7x2E98ZtMoF452nadsyTTDxPZd103pfjEAh8-9mtqdovGGh4nH5m_pViAG2RzHeO_ugmgMjBVN85rvSGa_kjp7LL02kdg8vPwYqnhzu0XC"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="pt-24 pb-12 px-6 max-w-7xl mx-auto space-y-8">
+<!-- Hero Metric Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-medium text-sm">Total Parses</span>
+<span class="material-symbols-outlined text-primary text-xl" data-weight="fill">description</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="text-3xl font-bold text-on-surface tracking-tight">24</h3>
+<span class="text-xs text-green-600 font-semibold bg-green-50 px-1.5 py-0.5 rounded">+12%</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-medium text-sm">Job Matches Found</span>
+<span class="material-symbols-outlined text-primary text-xl" data-weight="fill">hub</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="text-3xl font-bold text-on-surface tracking-tight">1,402</h3>
+<span class="text-xs text-green-600 font-semibold bg-green-50 px-1.5 py-0.5 rounded">+84%</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-medium text-sm">Interviews Secured</span>
+<span class="material-symbols-outlined text-primary text-xl" data-weight="fill">calendar_today</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="text-3xl font-bold text-on-surface tracking-tight">3</h3>
+<span class="text-xs text-tertiary font-semibold bg-tertiary-fixed px-1.5 py-0.5 rounded">Goal: 5</span>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-4">
+<span class="text-on-surface-variant font-medium text-sm">Profile Search Appearances</span>
+<span class="material-symbols-outlined text-primary text-xl" data-weight="fill">visibility</span>
+</div>
+<div class="flex items-baseline gap-2">
+<h3 class="text-3xl font-bold text-on-surface tracking-tight">45</h3>
+<span class="text-xs text-green-600 font-semibold bg-green-50 px-1.5 py-0.5 rounded">+5%</span>
+</div>
+</div>
+</div>
+<!-- Main Chart Area -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm p-8">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h2 class="text-xl font-bold text-on-surface tracking-tight">Match Trend Over Time</h2>
+<p class="text-on-surface-variant text-sm mt-1">Growth of job matching accuracy from Q1 to Q2 2024</p>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1 text-xs font-semibold bg-primary-fixed text-on-primary-fixed rounded-md">4 Months</button>
+<button class="px-3 py-1 text-xs font-medium text-on-surface-variant hover:bg-surface-container rounded-md">Yearly</button>
+</div>
+</div>
+<div class="relative h-64 w-full">
+<!-- Mock SVG Line Chart -->
+<svg class="w-full h-full" viewbox="0 0 1000 300">
+<!-- Grid Lines -->
+<line stroke="#f1f1f1" stroke-width="1" x1="0" x2="1000" y1="50" y2="50"></line>
+<line stroke="#f1f1f1" stroke-width="1" x1="0" x2="1000" y1="150" y2="150"></line>
+<line stroke="#f1f1f1" stroke-width="1" x1="0" x2="1000" y1="250" y2="250"></line>
+<!-- Gradient for Area -->
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0B66C2" stop-opacity="0.1"></stop>
+<stop offset="100%" stop-color="#0B66C2" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Path Area -->
+<path d="M 0 250 L 250 200 L 500 180 L 750 120 L 1000 60 L 1000 300 L 0 300 Z" fill="url(#chartGradient)"></path>
+<!-- Smooth Path Line -->
+<path class="chart-line" d="M 0 250 C 150 240, 150 210, 250 200 S 400 190, 500 180 S 650 140, 750 120 S 900 70, 1000 60" fill="none" stroke="#0B66C2" stroke-linecap="round" stroke-width="4"></path>
+<!-- Data Points -->
+<circle cx="0" cy="250" fill="#0B66C2" r="4"></circle>
+<circle cx="250" cy="200" fill="#0B66C2" r="4"></circle>
+<circle cx="500" cy="180" fill="#0B66C2" r="4"></circle>
+<circle cx="750" cy="120" fill="#0B66C2" r="4"></circle>
+<circle cx="1000" cy="60" fill="#004e99" r="6" stroke="white" stroke-width="2"></circle>
+</svg>
+<!-- X-Axis Labels -->
+<div class="flex justify-between mt-6 px-1 text-xs font-medium text-outline">
+<span>Jan</span>
+<span>Feb</span>
+<span>Mar</span>
+<span>Apr (Current)</span>
+</div>
+</div>
+</section>
+<!-- Recent Activity & Detailed Stats -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Recent Activity List -->
+<div class="lg:col-span-2 bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<div class="p-6 border-b border-surface-container-high flex justify-between items-center">
+<h2 class="text-lg font-bold text-on-surface">Recent Activity</h2>
+<button class="text-primary text-sm font-semibold hover:underline">View All</button>
+</div>
+<div class="divide-y divide-surface-container-high">
+<!-- Item 1 -->
+<div class="p-6 flex items-center gap-4 hover:bg-surface-container-low transition-colors">
+<div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">upload_file</span>
+</div>
+<div class="flex-1">
+<h4 class="text-sm font-semibold text-on-surface">Parsed new Resume v3</h4>
+<p class="text-xs text-on-surface-variant">System successfully extracted 15 core skills and 8 experience blocks.</p>
+</div>
+<span class="text-xs text-outline font-medium">2 hrs ago</span>
+</div>
+<!-- Item 2 -->
+<div class="p-6 flex items-center gap-4 hover:bg-surface-container-low transition-colors">
+<div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-700">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div class="flex-1">
+<h4 class="text-sm font-semibold text-on-surface">Matched with Google - 98%</h4>
+<p class="text-xs text-on-surface-variant">Senior Software Engineer role (Mountain View, CA). Top tier compatibility.</p>
+</div>
+<span class="text-xs text-outline font-medium">4 hrs ago</span>
+</div>
+<!-- Item 3 -->
+<div class="p-6 flex items-center gap-4 hover:bg-surface-container-low transition-colors">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">campaign</span>
+</div>
+<div class="flex-1">
+<h4 class="text-sm font-semibold text-on-surface">Profile updated from LinkedIn</h4>
+<p class="text-xs text-on-surface-variant">Synced new certification: AWS Certified Solutions Architect.</p>
+</div>
+<span class="text-xs text-outline font-medium">1 day ago</span>
+</div>
+</div>
+</div>
+<!-- Profile Overview Side Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 space-y-6">
+<div class="text-center">
+<div class="w-20 h-20 rounded-full border-4 border-primary/10 mx-auto relative mb-4">
+<img class="w-full h-full object-cover rounded-full" data-alt="professional male profile photo with a slight smile, clean background, and modern business casual attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt1wHpYlWBSMZC6YQSHCrZdj-pNoBo6mXfvhhPeEafpqK9tVuQfQHAjoVJ42aTUTLo-gapuV2BUHZnQP1I7Ncvu3vOWayWrhMjdaZKY56Lkj7Golbz_Vh3_4OrFNUljcBy2Q51l0-rku147wESaaCiDaUaPgmx_Mvm7g62C2cu8UwS5cnYMx0w4tHuusJWSZjRRksz2oRQcSVVmJLh_srkHXvvJfmjJAb3s7VGDviP3GpeuOoiU4s6sWYXLFWJCJ2Mz-lP_P7ucU8U"/>
+<div class="absolute bottom-0 right-0 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+<h3 class="text-lg font-bold text-on-surface">Alex Thompson</h3>
+<p class="text-sm text-on-surface-variant">Senior Product Designer</p>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Profile Strength</span>
+<span class="font-bold text-primary">Advanced</span>
+</div>
+<div class="h-2 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 85%;"></div>
+</div>
+</div>
+<div class="pt-4 border-t border-surface-container-high space-y-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline">location_on</span>
+<span class="text-sm text-on-surface">San Francisco, CA</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline">mail</span>
+<span class="text-sm text-on-surface">alex.t@example.com</span>
+</div>
+</div>
+<button class="w-full py-2.5 rounded-lg border border-primary/20 text-primary text-sm font-semibold hover:bg-primary/5 transition-colors">
+                    Edit Public Profile
+                </button>
+</div>
+</div>
+</main>
+<!-- Bottom spacing for mobile visibility -->
+<div class="h-12 md:hidden"></div>
+</body></html>
