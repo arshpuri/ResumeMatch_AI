@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports: ["5432:5432"]
+    environment:
+      POSTGRES_DB: resumematch
+      POSTGRES_USER: rmuser
+      POSTGRES_PASSWORD: rmpass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rmuser -d resumematch"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio
+    ports: ["9000:9000", "9001:9001"]
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+
+  backend:
+    build: ./backend
+    ports: ["8000:8000"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql+asyncpg://rmuser:rmpass@postgres:5432/resumematch
+      REDIS_URL: redis://redis:6379
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_BUCKET_NAME: resumes
+      JWT_SECRET_KEY: dev-secret-key-change-in-production
+      CORS_ORIGINS: http://localhost:3000
+    volumes:
+      - ./backend:/app
+
+volumes:
+  pgdata:
+  minio_data:

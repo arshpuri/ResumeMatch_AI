@@ -1,5 +1,5 @@
 """
-ParsedResume ORM model — matches 02_resume_parsing_engine.md schema.
+ParsedResume ORM model — aligned with Supabase public.parsed_resumes schema.
 """
 
 import uuid
@@ -8,11 +8,11 @@ from datetime import datetime
 from sqlalchemy import (
     String,
     Text,
-    Numeric,
+    Integer,
+    Float,
+    Boolean,
     DateTime,
     ForeignKey,
-    Index,
-    UniqueConstraint,
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB, ARRAY
@@ -32,39 +32,45 @@ class ParsedResume(Base):
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    file_url: Mapped[str] = mapped_column(Text, nullable=False)
-    file_type: Mapped[str] = mapped_column(String(10), nullable=False)
+    file_key: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    file_name: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    file_size: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    mime_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
     raw_text: Mapped[str | None] = mapped_column(Text, nullable=True)
-    parsed_data: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
-    skills: Mapped[list[str]] = mapped_column(
-        ARRAY(Text), nullable=False, default=list
+    parsed_data: Mapped[dict | None] = mapped_column(
+        JSONB, default=dict, nullable=True
     )
-    experience_years: Mapped[float | None] = mapped_column(
-        Numeric(4, 1), nullable=True
+    skills: Mapped[list[str] | None] = mapped_column(
+        ARRAY(Text), default=list, nullable=True
     )
     keywords: Mapped[list[str] | None] = mapped_column(
-        ARRAY(Text), nullable=True
+        ARRAY(Text), default=list, nullable=True
     )
-    parsing_confidence: Mapped[float | None] = mapped_column(
-        Numeric(3, 2), nullable=True
+    experience_years: Mapped[float | None] = mapped_column(
+        Float, default=0, nullable=True
     )
-    parser_version: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    education_level: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    confidence_score: Mapped[float | None] = mapped_column(
+        Float, default=0, nullable=True
+    )
+    parsing_status: Mapped[str | None] = mapped_column(
+        String(20), default="pending", nullable=True
+    )
+    parsing_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    version: Mapped[int | None] = mapped_column(Integer, default=1, nullable=True)
+    is_primary: Mapped[bool | None] = mapped_column(
+        Boolean, default=True, nullable=True
+    )
 
-    parsed_at: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now()
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
     )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now(), onupdate=func.now()
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
     )
 
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="resume")
-
-    __table_args__ = (
-        UniqueConstraint("user_id", name="unique_user_resume"),
-        Index("idx_resume_skills", "skills", postgresql_using="gin"),
-        Index("idx_resume_keywords", "keywords", postgresql_using="gin"),
-    )
 
 
 from app.models.user import User  # noqa: E402

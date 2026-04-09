@@ -1,5 +1,6 @@
 """
 Resume schemas — upload, parsed data, SSE events.
+Aligned with Supabase schema column names.
 """
 
 from pydantic import BaseModel
@@ -7,19 +8,21 @@ from pydantic import BaseModel
 
 class ResumeUploadResponse(BaseModel):
     id: str
-    file_url: str
-    file_type: str
+    file_key: str
+    file_name: str
     message: str = "Resume uploaded. Parsing started."
 
 
 class ParsedResumeResponse(BaseModel):
     """Full parsed resume data returned to frontend."""
     id: str
-    file_type: str
+    file_name: str | None = None
+    mime_type: str | None = None
     skills: list[str] = []
     experience_years: float | None = None
     keywords: list[str] = []
-    parsing_confidence: float | None = None
+    confidence_score: float | None = None
+    parsing_status: str | None = None
     parsed_data: dict = {}
 
     model_config = {"from_attributes": True}

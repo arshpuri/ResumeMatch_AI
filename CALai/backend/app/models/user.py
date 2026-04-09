@@ -1,5 +1,5 @@
 """
-User ORM model — matches 06_backend_and_database.md schema exactly.
+User ORM model — aligned with Supabase public.users schema.
 """
 
 import uuid
@@ -11,6 +11,7 @@ from sqlalchemy import (
     DateTime,
     Text,
     Index,
+    ForeignKey,
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB
@@ -25,32 +26,38 @@ class User(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
+    auth_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), unique=True, nullable=True
+    )
     email: Mapped[str] = mapped_column(
         String(255), unique=True, nullable=False, index=True
     )
-    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    name: Mapped[str] = mapped_column(String(200), nullable=False)
-    phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    location: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    name: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    hashed_password: Mapped[str] = mapped_column(
+        String(255), nullable=False, default=""
+    )
     headline: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    location: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    linkedin_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    github_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    portfolio_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     avatar_url: Mapped[str | None] = mapped_column(Text, nullable=True)
-    auth_provider: Mapped[str] = mapped_column(
-        String(20), default="email", nullable=False
+    status: Mapped[str | None] = mapped_column(
+        String(50), default="Open to Work", nullable=True
     )
-    auth_provider_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    role: Mapped[str] = mapped_column(String(20), default="user", nullable=False)
-    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
-    is_premium: Mapped[bool] = mapped_column(Boolean, default=False)
-    preferences: Mapped[dict] = mapped_column(JSONB, default=dict)
-    onboarding_completed: Mapped[bool] = mapped_column(Boolean, default=False)
-    status: Mapped[str] = mapped_column(String(50), default="Open to Work")
+    preferences: Mapped[dict | None] = mapped_column(
+        JSONB, default=dict, nullable=True
+    )
+    is_active: Mapped[bool | None] = mapped_column(
+        Boolean, default=True, nullable=True
+    )
 
-    last_login_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now()
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
     )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now(), onupdate=func.now()
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
     )
 
     # Relationships
@@ -62,10 +69,6 @@ class User(Base):
     )
     interactions: Mapped[list["UserInteraction"]] = relationship(
         "UserInteraction", back_populates="user", lazy="noload"
-    )
-
-    __table_args__ = (
-        Index("idx_users_provider", "auth_provider", "auth_provider_id"),
     )
 
 

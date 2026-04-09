@@ -41,7 +41,7 @@ async def get_skill_gaps(
     # Count skill frequencies in jobs where user lacks the skill
     skill_freq: dict[str, int] = {}
     for job in jobs:
-        for skill in (job.skills_required or []):
+        for skill in (job.required_skills or []):
             skill_lower = skill.lower()
             if skill_lower not in user_skills:
                 skill_freq[skill_lower] = skill_freq.get(skill_lower, 0) + 1

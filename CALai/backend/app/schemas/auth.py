@@ -30,6 +30,6 @@ class UserResponse(BaseModel):
     id: str
     email: str
     name: str
-    role: str
+    status: str | None = None
 
     model_config = {"from_attributes": True}

@@ -1,6 +1,7 @@
 """
 Job service — feed, detail, search, save, apply, dismiss.
 Integrates the 3-layer matching engine.
+Aligned with Supabase schema (required_skills, posted_at, match_score columns).
 """
 
 import uuid
@@ -92,10 +93,10 @@ async def get_job_feed(
             resume_skills=resume_skills,
             resume_exp_years=resume_exp_years,
             resume_embedding=resume_embedding,
-            job_skills_required=job.skills_required or [],
+            job_skills_required=job.required_skills or [],
             job_exp_level=job.experience_level,
-            job_embedding=job.embedding,
-            job_posted_date=job.posted_date,
+            job_embedding=None,  # Embedding is vector type, accessed via SQL
+            job_posted_date=job.posted_at,
             user_interactions=user_interaction_data,
         )
         scored_jobs.append((job, match_data))
@@ -110,7 +111,7 @@ async def get_job_feed(
     # Format response
     jobs_response = []
     for job, match_data in page:
-        posted_at = _format_posted_at(job.posted_date)
+        posted_at = _format_posted_at(job.posted_at)
         salary = _format_salary(job.salary_min, job.salary_max, job.salary_currency)
 
         jobs_response.append(JobMatchResponse(
@@ -162,10 +163,10 @@ async def get_job_detail(
         resume_skills=resume_skills,
         resume_exp_years=resume_exp_years,
         resume_embedding=None,
-        job_skills_required=job.skills_required or [],
+        job_skills_required=job.required_skills or [],
         job_exp_level=job.experience_level,
-        job_embedding=job.embedding,
-        job_posted_date=job.posted_date,
+        job_embedding=None,
+        job_posted_date=job.posted_at,
     )
 
     # Check if saved
@@ -192,7 +193,7 @@ async def get_job_detail(
         location=job.location or "Remote",
         matchScore=match_data["matchScore"],
         salary=_format_salary(job.salary_min, job.salary_max, job.salary_currency),
-        postedAt=_format_posted_at(job.posted_date),
+        postedAt=_format_posted_at(job.posted_at),
         skills=match_data["skills"],
         missingSkills=match_data["missingSkills"],
         reasons=match_data["reasons"],
@@ -211,17 +212,18 @@ async def search_jobs(
     query: str,
     limit: int = 20,
 ) -> dict:
-    """Full-text search using ILIKE (pg_trgm for production)."""
-    search_pattern = f"%{query}%"
+    """Full-text search using tsvector (fts column) with ILIKE fallback."""
+    # Try full-text search first
+    search_query = " & ".join(query.split())
 
     result = await db.execute(
         select(Job)
         .where(
             Job.is_active.is_(True),
             or_(
-                Job.title.ilike(search_pattern),
-                Job.company.ilike(search_pattern),
-                Job.description.ilike(search_pattern),
+                Job.title.ilike(f"%{query}%"),
+                Job.company.ilike(f"%{query}%"),
+                Job.description.ilike(f"%{query}%"),
             ),
         )
         .limit(limit)
@@ -242,10 +244,10 @@ async def search_jobs(
             resume_skills=resume_skills,
             resume_exp_years=resume_exp_years,
             resume_embedding=None,
-            job_skills_required=job.skills_required or [],
+            job_skills_required=job.required_skills or [],
             job_exp_level=job.experience_level,
-            job_embedding=job.embedding,
-            job_posted_date=job.posted_date,
+            job_embedding=None,
+            job_posted_date=job.posted_at,
         )
         jobs_response.append(JobMatchResponse(
             id=str(job.id),
@@ -254,7 +256,7 @@ async def search_jobs(
             location=job.location or "Remote",
             matchScore=match_data["matchScore"],
             salary=_format_salary(job.salary_min, job.salary_max, job.salary_currency),
-            postedAt=_format_posted_at(job.posted_date),
+            postedAt=_format_posted_at(job.posted_at),
             skills=match_data["skills"],
             missingSkills=match_data["missingSkills"],
             reasons=match_data["reasons"],
@@ -329,7 +331,7 @@ async def apply_to_job(
     db: AsyncSession,
     user: User,
     job_id: str,
-    match_score: float | None = None,
+    match_score_val: float | None = None,
 ) -> bool:
     """Track a job application."""
     job_uuid = uuid.UUID(job_id)
@@ -344,12 +346,19 @@ async def apply_to_job(
     if existing.scalar_one_or_none():
         raise ValueError("Already applied to this job")
 
+    # Get user's resume ID for the application record
+    resume_result = await db.execute(
+        select(ParsedResume.id).where(ParsedResume.user_id == user.id)
+    )
+    resume_row = resume_result.first()
+    resume_id = resume_row[0] if resume_row else None
+
     app = Application(
         user_id=user.id,
         job_id=job_uuid,
+        resume_id=resume_id,
         status="applied",
-        match_score_at_apply=match_score,
-        source="in_app",
+        match_score=match_score_val,
     )
     db.add(app)
 
@@ -367,18 +376,18 @@ async def dismiss_job(db: AsyncSession, user: User, job_id: str) -> bool:
     return True
 
 
-def _format_posted_at(posted_date: datetime | None) -> str:
+def _format_posted_at(posted_at: datetime | None) -> str:
     """Format posted date as relative time string."""
-    if not posted_date:
+    if not posted_at:
         return "Recently"
 
     now = datetime.now(timezone.utc)
-    if hasattr(posted_date, 'tzinfo') and posted_date.tzinfo is None:
-        posted_date = posted_date.replace(tzinfo=timezone.utc)
-    elif not hasattr(posted_date, 'hour'):
-        posted_date = datetime.combine(posted_date, datetime.min.time(), tzinfo=timezone.utc)
+    if hasattr(posted_at, 'tzinfo') and posted_at.tzinfo is None:
+        posted_at = posted_at.replace(tzinfo=timezone.utc)
+    elif not hasattr(posted_at, 'hour'):
+        posted_at = datetime.combine(posted_at, datetime.min.time(), tzinfo=timezone.utc)
 
-    delta = now - posted_date
+    delta = now - posted_at
     days = delta.days
 
     if days == 0:

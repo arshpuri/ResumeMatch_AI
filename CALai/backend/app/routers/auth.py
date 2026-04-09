@@ -70,5 +70,5 @@ async def get_me(user: CurrentUser):
         id=str(user.id),
         email=user.email,
         name=user.name,
-        role=user.role,
+        status=user.status,
     )

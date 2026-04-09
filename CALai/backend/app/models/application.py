@@ -1,5 +1,5 @@
 """
-Application ORM model — tracks job applications per user.
+Application ORM model — aligned with Supabase public.applications schema.
 """
 
 import uuid
@@ -8,11 +8,11 @@ from datetime import datetime
 from sqlalchemy import (
     String,
     Text,
-    Numeric,
+    Float,
     DateTime,
     ForeignKey,
-    Index,
     UniqueConstraint,
+    Index,
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -37,20 +37,23 @@ class Application(Base):
         ForeignKey("jobs.id"),
         nullable=False,
     )
-    status: Mapped[str] = mapped_column(
-        String(20), default="applied", nullable=False
+    resume_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("parsed_resumes.id"),
+        nullable=True,
     )
-    match_score_at_apply: Mapped[float | None] = mapped_column(
-        Numeric(5, 1), nullable=True
+    status: Mapped[str | None] = mapped_column(
+        String(20), default="applied", nullable=True
     )
+    match_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    cover_letter: Mapped[str | None] = mapped_column(Text, nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
-    source: Mapped[str | None] = mapped_column(String(50), default="in_app")
 
-    applied_at: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now()
+    applied_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
     )
-    status_updated_at: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now(), onupdate=func.now()
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
     )
 
     # Relationships
@@ -59,8 +62,6 @@ class Application(Base):
 
     __table_args__ = (
         UniqueConstraint("user_id", "job_id", name="unique_user_job_app"),
-        Index("idx_apps_user", "user_id", "applied_at"),
-        Index("idx_apps_status", "user_id", "status"),
     )
 
 

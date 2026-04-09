@@ -1,6 +1,9 @@
 """
 SQLAlchemy async engine and session factory.
+Configured for Supabase PostgreSQL with SSL.
 """
+
+import ssl
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -13,11 +16,22 @@ from app.config import get_settings
 
 settings = get_settings()
 
+# Build SSL context for Supabase connection
+connect_args = {}
+if "supabase.com" in settings.DATABASE_URL or "pooler.supabase.com" in settings.DATABASE_URL:
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    connect_args["ssl"] = ssl_context
+
 engine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.APP_DEBUG,
-    pool_size=20,
-    max_overflow=10,
+    pool_size=10,
+    max_overflow=5,
+    pool_timeout=30,
+    pool_recycle=1800,
+    connect_args=connect_args,
 )
 
 async_session_factory = async_sessionmaker(

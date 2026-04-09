@@ -1,6 +1,7 @@
 """
 Resume router — /api/v1/resume/*
 Endpoints: upload, get, update, delete, parsing-status (SSE)
+Aligned with Supabase schema column names.
 """
 
 import asyncio
@@ -61,11 +62,13 @@ async def get_resume(user: CurrentUser, db: DbSession):
 
     return ParsedResumeResponse(
         id=str(resume.id),
-        file_type=resume.file_type,
+        file_name=resume.file_name,
+        mime_type=resume.mime_type,
         skills=resume.skills or [],
         experience_years=float(resume.experience_years) if resume.experience_years else None,
         keywords=resume.keywords or [],
-        parsing_confidence=float(resume.parsing_confidence) if resume.parsing_confidence else None,
+        confidence_score=float(resume.confidence_score) if resume.confidence_score else None,
+        parsing_status=resume.parsing_status,
         parsed_data=resume.parsed_data or {},
     )
 
@@ -86,11 +89,13 @@ async def update_resume(
 
     return ParsedResumeResponse(
         id=str(resume.id),
-        file_type=resume.file_type,
+        file_name=resume.file_name,
+        mime_type=resume.mime_type,
         skills=resume.skills or [],
         experience_years=float(resume.experience_years) if resume.experience_years else None,
         keywords=resume.keywords or [],
-        parsing_confidence=float(resume.parsing_confidence) if resume.parsing_confidence else None,
+        confidence_score=float(resume.confidence_score) if resume.confidence_score else None,
+        parsing_status=resume.parsing_status,
         parsed_data=resume.parsed_data or {},
     )
 

@@ -1,30 +1,45 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { TopNavBar } from "@/components/shared/TopNavBar";
-import { DASHBOARD_STATS } from "@/data/mockData";
+import { api, type DashboardStats } from "@/lib/api";
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.dashboard.getStats()
+      .then(setStats)
+      .catch(() => setStats(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const s = stats || { totalParses: 0, jobsMatched: 0, interviewsSecured: 0, profileAppearances: 0, recentActivity: [] };
+
   return (
     <div className="flex min-h-screen flex-col">
       <TopNavBar activeTab="dashboard" />
       <main className="flex-grow bg-[#F3F2EF] px-4 py-8">
         <div className="mx-auto max-w-7xl space-y-8">
-          
+
           {/* Hero Metric Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-surface rounded-xl p-6 shadow-sm flex flex-col gap-2">
               <span className="text-sm font-medium text-text-muted">Total Parses</span>
-              <span className="text-3xl font-bold text-foreground">{DASHBOARD_STATS.totalParses}</span>
+              <span className="text-3xl font-bold text-foreground">{loading ? "—" : s.totalParses}</span>
             </div>
             <div className="bg-surface rounded-xl p-6 shadow-sm flex flex-col gap-2">
               <span className="text-sm font-medium text-text-muted">Job Matches Found</span>
-              <span className="text-3xl font-bold text-primary">{DASHBOARD_STATS.jobsMatched.toLocaleString()}</span>
+              <span className="text-3xl font-bold text-primary">{loading ? "—" : s.jobsMatched.toLocaleString()}</span>
             </div>
             <div className="bg-surface rounded-xl p-6 shadow-sm flex flex-col gap-2">
               <span className="text-sm font-medium text-text-muted">Interviews Secured</span>
-              <span className="text-3xl font-bold text-[var(--color-emerald-solid)]">{DASHBOARD_STATS.interviewsSecured}</span>
+              <span className="text-3xl font-bold text-[var(--color-emerald-solid)]">{loading ? "—" : s.interviewsSecured}</span>
             </div>
             <div className="bg-surface rounded-xl p-6 shadow-sm flex flex-col gap-2">
               <span className="text-sm font-medium text-text-muted">Profile Search Appearances</span>
-              <span className="text-3xl font-bold text-foreground">{DASHBOARD_STATS.profileAppearances}</span>
+              <span className="text-3xl font-bold text-foreground">{loading ? "—" : s.profileAppearances}</span>
             </div>
           </div>
 
@@ -32,7 +47,6 @@ export default function DashboardPage() {
           <div className="bg-surface rounded-xl p-8 shadow-sm">
             <h2 className="text-xl font-bold text-foreground mb-6">Match Trend Over Time</h2>
             <div className="w-full h-64 border-b border-l border-gray-200 relative">
-               {/* Mock Line Chart */}
                <svg className="h-full w-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
                  <path d="M 0,80 Q 25,70 50,40 T 100,10" fill="none" stroke="var(--color-primary)" strokeWidth="3" vectorEffect="non-scaling-stroke" />
                </svg>
@@ -51,12 +65,18 @@ export default function DashboardPage() {
               <h2 className="text-lg font-bold text-foreground">Recent Activity</h2>
             </div>
             <ul className="divide-y divide-gray-100">
-              {DASHBOARD_STATS.recentActivity.map(act => (
-                <li key={act.id} className="px-6 py-4 flex justify-between hover:bg-gray-50 transition-colors">
-                  <span className="text-sm font-medium text-foreground">{act.action}</span>
-                  <span className="text-xs text-text-muted">{act.time}</span>
-                </li>
-              ))}
+              {loading ? (
+                <li className="px-6 py-4 text-sm text-text-muted animate-pulse">Loading activity...</li>
+              ) : s.recentActivity.length === 0 ? (
+                <li className="px-6 py-4 text-sm text-text-muted">No recent activity. Upload a resume to get started!</li>
+              ) : (
+                s.recentActivity.map(act => (
+                  <li key={act.id} className="px-6 py-4 flex justify-between hover:bg-gray-50 transition-colors">
+                    <span className="text-sm font-medium text-foreground">{act.action}</span>
+                    <span className="text-xs text-text-muted">{act.time}</span>
+                  </li>
+                ))
+              )}
             </ul>
           </div>
 

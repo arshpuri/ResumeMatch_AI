@@ -1,6 +1,7 @@
 """
 Dashboard service — aggregated stats, applications, match trends, activity.
 Response format matches frontend DASHBOARD_STATS shape exactly.
+Aligned with Supabase schema (match_score column).
 """
 
 import uuid
@@ -120,7 +121,7 @@ async def get_applications(
             company=job.company if job else "Unknown",
             status=app.status,
             appliedAt=app.applied_at.isoformat() if app.applied_at else "",
-            matchScore=float(app.match_score_at_apply) if app.match_score_at_apply else None,
+            matchScore=float(app.match_score) if app.match_score else None,
         ))
 
     return ApplicationsResponse(applications=items, total=len(items))
@@ -139,10 +140,10 @@ async def get_match_trend(
         week_start = now - timedelta(weeks=i)
         week_label = week_start.strftime("%b %d")
 
-        # Query average match score at apply for that week
+        # Query average match score for that week
         week_end = week_start + timedelta(weeks=1)
         result = await db.execute(
-            select(func.avg(Application.match_score_at_apply)).where(
+            select(func.avg(Application.match_score)).where(
                 Application.user_id == user.id,
                 Application.applied_at >= week_start,
                 Application.applied_at < week_end,

@@ -1,5 +1,6 @@
 """
 Auth service — handles registration, login, token management.
+Aligned with Supabase schema (hashed_password column).
 """
 
 import uuid
@@ -34,9 +35,8 @@ async def register_user(
 
     user = User(
         email=email,
-        password_hash=hash_password(password),
+        hashed_password=hash_password(password),
         name=name,
-        auth_provider="email",
     )
     db.add(user)
     await db.flush()
@@ -54,20 +54,18 @@ async def authenticate_user(
 
     if user is None:
         return None
-    if user.password_hash is None:
-        return None  # OAuth-only user
-    if not verify_password(password, user.password_hash):
+    if not user.hashed_password:
+        return None  # OAuth-only or Supabase Auth user
+    if not verify_password(password, user.hashed_password):
         return None
 
-    # Update last login
-    user.last_login_at = datetime.now(timezone.utc)
     return user
 
 
 def create_tokens(user: User) -> dict:
     """Generate access + refresh token pair for a user."""
     user_id = str(user.id)
-    access_token = create_access_token({"sub": user_id, "role": user.role})
+    access_token = create_access_token({"sub": user_id})
     refresh_token = create_refresh_token(user_id)
     return {
         "access_token": access_token,

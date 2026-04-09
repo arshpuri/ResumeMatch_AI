@@ -36,8 +36,15 @@ async def get_current_user(
             detail="Token missing subject",
         )
 
+    # Look up user by ID (supports both internal ID and auth_id)
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
+
+    # Fallback: try auth_id lookup (for Supabase Auth integration)
+    if user is None:
+        result = await db.execute(select(User).where(User.auth_id == user_id))
+        user = result.scalar_one_or_none()
+
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

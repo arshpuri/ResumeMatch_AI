@@ -1,5 +1,6 @@
 """
 Resume service — upload, parse, CRUD operations.
+Aligned with Supabase schema (file_key, confidence_score, parsing_status columns).
 """
 
 import asyncio
@@ -46,7 +47,7 @@ async def upload_and_parse_resume(
     existing = result.scalar_one_or_none()
     if existing:
         try:
-            delete_file(existing.file_url)
+            delete_file(existing.file_key)
         except Exception:
             pass
         await db.delete(existing)
@@ -55,10 +56,13 @@ async def upload_and_parse_resume(
     # Create new resume record
     resume = ParsedResume(
         user_id=user.id,
-        file_url=object_key,
-        file_type=ext,
+        file_key=object_key,
+        file_name=filename,
+        file_size=len(file_bytes),
+        mime_type=content_type,
         parsed_data={},
         skills=[],
+        parsing_status="processing",
     )
     db.add(resume)
     await db.flush()
@@ -74,8 +78,8 @@ async def upload_and_parse_resume(
             resume.skills = parsed.get("skills", [])
             resume.experience_years = parsed.get("experience_years", 0)
             resume.keywords = parsed.get("keywords", [])
-            resume.parsing_confidence = parsed.get("parsing_confidence", 0)
-            resume.parser_version = parsed.get("parser_version", "1.0.0")
+            resume.confidence_score = parsed.get("parsing_confidence", 0)
+            resume.parsing_status = "completed"
 
             # Update user headline from parsed data if not set
             personal = resume.parsed_data.get("personal_info", {})
@@ -88,12 +92,16 @@ async def upload_and_parse_resume(
             if not user.phone and personal.get("phone"):
                 user.phone = personal["phone"]
 
-            # Mark onboarding progress
-            user.onboarding_completed = True
-
+            await db.flush()
+        else:
+            resume.parsing_status = "failed"
+            resume.parsing_error = parsed.get("error", "Unknown error")
             await db.flush()
     except Exception as e:
         logger.error(f"Resume parsing failed: {e}")
+        resume.parsing_status = "failed"
+        resume.parsing_error = str(e)
+        await db.flush()
 
     # Invalidate caches
     await cache_delete_pattern(f"profile:{user_id_str}*")
@@ -101,8 +109,8 @@ async def upload_and_parse_resume(
 
     return {
         "id": str(resume.id),
-        "file_url": object_key,
-        "file_type": ext,
+        "file_key": object_key,
+        "file_name": filename,
         "message": "Resume uploaded. Parsing started.",
     }
 
@@ -150,7 +158,7 @@ async def delete_resume(db: AsyncSession, user: User):
     resume = result.scalar_one_or_none()
     if resume:
         try:
-            delete_file(resume.file_url)
+            delete_file(resume.file_key)
         except Exception:
             pass
         await db.delete(resume)

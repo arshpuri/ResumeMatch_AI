@@ -1,5 +1,6 @@
 """
-UserInteraction + SavedJob ORM models — for recommendation engine signals.
+UserInteraction + SavedJob ORM models — aligned with Supabase schema.
+For recommendation engine behavioral signals.
 """
 
 import uuid
@@ -33,7 +34,7 @@ class UserInteraction(Base):
     )
     job_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("jobs.id"),
+        ForeignKey("jobs.id", ondelete="CASCADE"),
         nullable=False,
     )
     action: Mapped[str] = mapped_column(
@@ -42,7 +43,7 @@ class UserInteraction(Base):
     duration_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now()
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
     # Relationships
@@ -50,8 +51,8 @@ class UserInteraction(Base):
     job: Mapped["Job"] = relationship("Job", lazy="selectin")
 
     __table_args__ = (
-        Index("idx_interactions_user", "user_id", "created_at"),
-        Index("idx_interactions_action", "action", "created_at"),
+        Index("idx_interactions_user_created", "user_id", "created_at"),
+        Index("idx_interactions_action_created", "action", "created_at"),
     )
 
 
@@ -65,11 +66,11 @@ class SavedJob(Base):
     )
     job_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("jobs.id"),
+        ForeignKey("jobs.id", ondelete="CASCADE"),
         nullable=False,
     )
     saved_at: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now()
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
     job: Mapped["Job"] = relationship("Job", lazy="selectin")

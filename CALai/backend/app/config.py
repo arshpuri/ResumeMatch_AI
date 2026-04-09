@@ -9,8 +9,12 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    # Database
-    DATABASE_URL: str = "postgresql+asyncpg://rmuser:rmpass@localhost:5432/resumematch"
+    # Database (Supabase PostgreSQL)
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:password@localhost:5432/postgres"
+
+    # Supabase
+    SUPABASE_URL: str = ""
+    SUPABASE_ANON_KEY: str = ""
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379"
