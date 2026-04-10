@@ -26,13 +26,19 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: create tables if they don't exist. Shutdown: dispose engine."""
+    """Startup: verify DB connection. Shutdown: dispose engine."""
     logger.info("Starting ResumeMatch AI Backend...")
 
-    # Create tables (use Alembic in production)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database tables ready.")
+    # Verify database connection (skip create_all for Supabase — tables already exist)
+    try:
+        async with engine.begin() as conn:
+            from sqlalchemy import text
+            result = await conn.execute(text("SELECT 1"))
+            result.fetchone()
+        logger.info("Database connection verified ✅")
+    except Exception as e:
+        logger.warning(f"Database connection failed: {e}")
+        logger.warning("Backend starting without DB — set DATABASE_URL in .env")
 
     # Ensure S3 bucket exists
     try:

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { TopNavBar } from "@/components/shared/TopNavBar";
 import { Loader2, CheckCircle } from "lucide-react";
-import { useResumeParsing } from "@/hooks/useResumeParsing";
+import { useResumeParsing } from "@/components/hooks/useResumeParsing";
 
 const STEPS = [
   { key: "extracting", label: "Extracting text from document" },

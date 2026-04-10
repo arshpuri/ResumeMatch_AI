@@ -21,7 +21,12 @@ def _get_s3_client():
         endpoint_url=settings.S3_ENDPOINT,
         aws_access_key_id=settings.S3_ACCESS_KEY,
         aws_secret_access_key=settings.S3_SECRET_KEY,
-        config=BotoConfig(signature_version="s3v4"),
+        config=BotoConfig(
+            signature_version="s3v4",
+            connect_timeout=3,
+            read_timeout=5,
+            retries={"max_attempts": 1},
+        ),
         region_name="us-east-1",
     )
 
